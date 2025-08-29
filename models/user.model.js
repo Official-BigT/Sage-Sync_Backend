@@ -28,14 +28,15 @@ const userSchema = new mongoose.Schema(
     },
 
     phone: {
-      type: String,
-      required: [true, "Phone number is required"],
-      trim: true,
-      match: [
-        /^(?:\\+234|0)(?:70|80|81|90|91)\\d{8}$/,
-        "Please enter a valid Nigerian phone number",
-      ],
-    },
+  type: String,
+  required: [true, "Phone number is required"],
+  trim: true,
+  match: [
+    /^(?:\+234|0)[789]\d{9}$/,
+    "Please enter a valid Nigerian phone number",
+  ],
+},
+
 
     //   Business Information
     businessName: {

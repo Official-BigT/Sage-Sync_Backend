@@ -1,5 +1,5 @@
-import http from "http"
-import app from "./app/app"
+import http from "http";
+import app from "./app/app.js"
 
 const PORT = process.env.PORT || 5680;
 

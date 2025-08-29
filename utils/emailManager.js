@@ -1,36 +1,37 @@
-import { TransactionalEmailsApi, SendSmtpEmail } from "@getbrevo/brevo";
-
 const emailManager = async (to, subject, html) => {
-  /*
-            This line initializes a new instance of the TransactionalEmailsApi class from the @getbrevo/brevo SDK.
+  const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
-            It creates an object named emailAPI which contains all the methods and properties needed to interact with Brevo's email sending service. Think of it as creating a remote control that is specifically designed to work with the Brevo API.
-
-    */
-  const emailAPI = new TransactionalEmailsApi();
-  //   *.apiKey: This refers to the specific authentication scheme being used—in this case, an API Key authentication. This is a property within the authentications object.
-
-  // * .apiKey: This second apiKey is the property within the API key authentication scheme that holds the actual key value itself.
-  emailAPI.authentications.apiKey.apiKey = process.env.BREVO_API_KEY; // your Brevo API key
-
-  //   * Creates the email message: A SendSmtpEmail object is created and populated with the sender's details, recipient, subject, and HTML content.
-  const message = new SendSmtpEmail();
-  message.sender = {
-    email: process.env.BREVO_SENDER_EMAIL,
-    name: process.env.BREVO_SENDER_NAME,
+  const payload = {
+    sender: {
+      email: process.env.BREVO_SENDER_EMAIL,
+      name: process.env.BREVO_SENDER_NAME,
+    },
+    to: [{ email: to }],
+    subject: subject,
+    htmlContent: html,
   };
-  //   * { email: to } is an object where the key is email and its value is the recipient's email address, which is passed into the function via the to parameter. This format allows you to also add an optional name for the recipient (e.g., { email: "john@example.com", name: "John Doe" }).
-
-  message.to = [{ email: to }];
-  message.subject = subject;
-  message.htmlContent = html;
 
   try {
-    const response = await emailAPI.sendTransacEmail(message);
-    console.log("Email sent successfully:", response.body);
+    const response = await fetch(BREVO_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY, // Authentication header
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error sending via Brevo REST API:", errorData);
+      throw new Error(`Failed to send email to ${to}: ${errorData.message}`);
+    }
+
+    const result = await response.json();
+    console.log("Email sent successfully:", result);
   } catch (error) {
-    console.error("Error sending via Brevo SDK:", error.body || error);
-    throw new Error(`Failed to send email to ${to}: ${error.message}`);
+    console.error("Error:", error);
+    throw error;
   }
 };
 

@@ -29,7 +29,7 @@ export const registerUserCtrl = AsyncHandler(async (req, res) => {
 
   // 2. Create a verification token (needed for the email template)
   // We create a temporary user object to generate the token, but don't save it yet.
-  const tempUser = new User({ email }); 
+  const tempUser = new User({ email });  
   const verificationToken = tempUser.createVerificationToken();
    const verificationUrl = `${process.env.BACKEND_URL || 'http://localhost:5680'}/api/v1/auth/verify-email?token=${verificationToken}`;
 

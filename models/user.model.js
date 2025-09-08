@@ -46,15 +46,18 @@ const userSchema = new mongoose.Schema(
       maxlength: [155, "Business name cannot exceed 155 characters"],
     },
 
-    businessType: {
+    businessType: { 
       type: String,
       required: [true, "Business type is required"],
       enum: [
         "Freelancer",
-        "Small Business",
-        "Online Store",
-        "Startup",
         "Consultant",
+        "Small Business",
+        "Startup",
+        "Agency",
+        "E-Commerce",
+        "Service Provider",
+        "Online Store",
         "Other",
       ],
     },
@@ -164,7 +167,7 @@ userSchema.methods.createVerificationToken = function() {
     .update(verificationToken)
     .digest('hex');
 
-  this.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+  this.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // Adds 24 hours to the current day so it doesn't work after the next day.
 
   return verificationToken;
 };

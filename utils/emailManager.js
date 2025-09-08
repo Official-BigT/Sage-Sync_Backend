@@ -6,7 +6,7 @@ const emailManager = async (to, subject, html) => {
       email: process.env.BREVO_SENDER_EMAIL,
       name: process.env.BREVO_SENDER_NAME,
     },
-    to: [{ email: to }],
+    to: [{ email: to }], // 
     subject: subject,
     htmlContent: html,
   };

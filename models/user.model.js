@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Business name is required"],
       trim: true,
-      maxlength: [155, "Business name cannot exceed 155 characters"],
+      maxlength: [155, "Business name cannot exceed 255 characters"],
     },
 
     businessType: {
@@ -65,8 +65,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      lowercase: true,
-      unique: true,
+      // lowercase: true,
+      // unique: true,
     },
 
     //   User x Service  Agreements
@@ -153,7 +153,7 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest("hex");
 
-  this.passwordResetExpires = Date.now() + 10 + 60 * 1000; //10 minutes
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; //10 minutes
 
   return resetToken;
 };

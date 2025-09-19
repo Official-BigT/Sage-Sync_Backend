@@ -28,15 +28,14 @@ const userSchema = new mongoose.Schema(
     },
 
     phone: {
-  type: String,
-  required: [true, "Phone number is required"],
-  trim: true,
-  match: [
-    /^(?:\+234|0)[789]\d{9}$/,
-    "Please enter a valid Nigerian phone number",
-  ],
-},
-
+      type: String,
+      required: [true, "Phone number is required"],
+      trim: true,
+      match: [
+        /^(?:\+234|0)[789]\d{9}$/,
+        "Please enter a valid Nigerian phone number",
+      ],
+    },
 
     //   Business Information
     businessName: {
@@ -46,7 +45,7 @@ const userSchema = new mongoose.Schema(
       maxlength: [155, "Business name cannot exceed 155 characters"],
     },
 
-    businessType: { 
+    businessType: {
       type: String,
       required: [true, "Business type is required"],
       enum: [
@@ -73,7 +72,7 @@ const userSchema = new mongoose.Schema(
     //   User x Service  Agreements
     agreeToTerms: {
       type: Boolean,
-      required: [true, `You must agree to teh terms of service`],
+      required: [true, `You must agree to the terms of service`],
     },
 
     subscribeToNewsLetter: {
@@ -126,6 +125,7 @@ userSchema.methods.correctPassword = async function (candidatePassword) {
   // compares the plain password to the hashed password to determine if the passwords match each other. vvvvvvv
   return await bcrypt.compare(candidatePassword, this.password);
 };
+
 /*
 -> (1) Verify if token was issued before a password changed
 -> (2) if true, force the user to login again (as a security measure)
@@ -159,13 +159,13 @@ userSchema.methods.createPasswordResetToken = function () {
 };
 
 // Instance method to create email verification token
-userSchema.methods.createVerificationToken = function() {
-  const verificationToken = crypto.randomBytes(32).toString('hex');
+userSchema.methods.createVerificationToken = function () {
+  const verificationToken = crypto.randomBytes(32).toString("hex");
 
   this.verificationToken = crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(verificationToken)
-    .digest('hex');
+    .digest("hex");
 
   this.verificationTokenExpires = Date.now() + 24 * 60 * 60 * 1000; // Adds 24 hours to the current day so it doesn't work after the next day.
 

@@ -6,7 +6,6 @@ import emailManager from "../utils/emailManager.js";
 import { hashPassword } from "../utils/helpers.js";
 import { createRefreshToken, generateAccessToken } from "../utils/jwt.js";
 
-
 // ===============================
 // REGISTER USER
 // ===============================
@@ -23,7 +22,7 @@ export const registerUserCtrl = AsyncHandler(async (req, res) => {
     businessType,
     password,
     agreeToTerms,
-    subscribeToNewsLetter,
+    subscribeToNewsletter,
   } = req.body;
 
   // 1. Check if user already exists
@@ -36,9 +35,7 @@ export const registerUserCtrl = AsyncHandler(async (req, res) => {
   // We create a temporary user object to generate the token, but don't save it yet.
   const tempUser = new User({ email });
   const verificationToken = tempUser.createVerificationToken();
-  const verificationUrl = `${
-    process.env.BACKEND_URL || "http://localhost:5680"
-  }/api/v1/auth/verify-email?token=${verificationToken}`;
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
   // 3. Create user object with hashed password but DO NOT SAVE YET
   const user = new User({
@@ -48,9 +45,9 @@ export const registerUserCtrl = AsyncHandler(async (req, res) => {
     phone,
     businessName,
     businessType,
-    password, 
+    password,
     agreeToTerms,
-    subscribeToNewsLetter,
+    subscribeToNewsletter,
     // Add the generated token fields to the user object
     verificationToken: tempUser.verificationToken,
     verificationTokenExpires: tempUser.verificationTokenExpires,
@@ -111,7 +108,7 @@ export const registerUserCtrl = AsyncHandler(async (req, res) => {
 export const loginUserCtrl = AsyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // 1. Find user
+  // 1. Find user and check for password
   const user = await User.findOne({ email: email.toLowerCase() });
   if (!user || !(await user.correctPassword(password))) {
     return res.status(401).json({
@@ -142,7 +139,7 @@ export const loginUserCtrl = AsyncHandler(async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "Lax",
-    maxAge: 1* 60 * 60 * 1000, //1 hour
+    maxAge: 1 * 60 * 60 * 1000, //1 hour
   });
   res.cookie("refreshToken", refreshTokenPlain, {
     httpOnly: true,

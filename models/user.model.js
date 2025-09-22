@@ -75,7 +75,7 @@ const userSchema = new mongoose.Schema(
       required: [true, `You must agree to the terms of service`],
     },
 
-    subscribeToNewsLetter: {
+    subscribeToNewsletter: {
       type: Boolean,
       default: false,
     },
@@ -160,6 +160,7 @@ userSchema.methods.createPasswordResetToken = function () {
 
 // Instance method to create email verification token
 userSchema.methods.createVerificationToken = function () {
+
   const verificationToken = crypto.randomBytes(32).toString("hex");
 
   this.verificationToken = crypto

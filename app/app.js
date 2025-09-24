@@ -70,7 +70,8 @@ app.options("*", cors(corsOptions));
 
 
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+
 // parse incoming datas, meaning the datas coming in the {req}, will be converted as json.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

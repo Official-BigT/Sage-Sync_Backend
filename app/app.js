@@ -41,8 +41,8 @@ const corsOptions = {
       callback(null, true);
     } else {
       // do NOT call callback with an error -  just reject  by returning false
-      callback(null, false);
-      // callback(new Error("CORS not allowed fro this origin:" + origin));
+      // callback(null, false);
+      callback(new Error("CORS not allowed for this origin:" + origin));
     }
   },
   credentials: true,

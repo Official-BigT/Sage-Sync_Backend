@@ -31,31 +31,44 @@ const allowedOrigins = [
   process.env.FRONTEND_URL, // Production frontend URL
 ].filter(Boolean);
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Note: origin may be undefined for server-to-server calls, or curl, or same-origin requests
-    console.log("CORS request from:", origin);
-    // allow if no origin (non-browser request), or if origin is in whitelist
+// const corsOptions = {
+//   // origin: function (origin, callback) {
+//   //   // Note: origin may be undefined for server-to-server calls, or curl, or same-origin requests
+//   //   console.log("CORS request from:", origin);
+//   //   // allow if no origin (non-browser request), or if origin is in whitelist
 
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      // do NOT call callback with an error -  just reject  by returning false
-      // callback(null, false);
-      callback(new Error("CORS not allowed for this origin:" + origin));
-    }
-  },
+//   //   if (!origin || allowedOrigins.includes(origin)) {
+//   //     callback(null, true);
+//   //   } else {
+//   //     // do NOT call callback with an error -  just reject  by returning false
+//   //     // callback(null, false);
+//   //     callback(new Error("CORS not allowed for this origin:" + origin));
+//   //   }
+//   // },
+//   // credentials: true,
+//   // methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+//   // allowedHeaders: [
+//   //   "Content-Type",
+//   //   "Authorization",
+//   //   "X-Requested-With",
+//   //   "Accept",
+//   //   "Origin",
+//   // ],
+//   // optionsSuccessStatus: 200,
+// };
+
+const corsOptions = {
+  origin: "https://sage-sync.vercel.app", // exact deployed frontend
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "Accept",
-    "Origin",
-  ],
-  optionsSuccessStatus: 200,
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
 };
+
+
+// Handle preflight explicitly
+app.options("*", cors(corsOptions));
+
+
 
 app.use(cors(corsOptions));
 // parse incoming datas, meaning the datas coming in the {req}, will be converted as json.

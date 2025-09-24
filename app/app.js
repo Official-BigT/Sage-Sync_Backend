@@ -11,20 +11,38 @@ dbConnect();
 
 const app = express();
 // CORS configuration (CRITICAL FOR FRONTEND)
+// Log incoming requests (very useful for render logs)
+app.use((req, res, next) => {
+  console.log(
+    `[REQ] ${req.method} ${req.originalUrl} - Origin: ${
+      req.headers.origin
+    } - Host:${req.headers.host} - UA: ${req.headers["user-agent"]?.slice(
+      0,
+      80
+    )}`
+  );
+  next();
+});
+const allowedOrigins = [
+  "http://localhost:3000", // React dev server
+  "http://localhost:5173", // Vite dev server
+  "http://localhost:8080", // Vite preview
+  "http://sage-sync.vercel.app", // Site preview
+  process.env.FRONTEND_URL, // Production frontend URL
+].filter(Boolean);
+
 const corsOptions = {
   origin: function (origin, callback) {
+    // Note: origin may be undefined for server-to-server calls, or curl, or same-origin requests
     console.log("CORS request from:", origin);
-    const allowedOrigins = [
-      "http://localhost:3000", // React dev server
-      "http://localhost:5173", // Vite dev server
-      "http://localhost:8080", // Vite preview
-      process.env.FRONTEND_URL, // Production frontend URL
-    ].filter(Boolean);
+    // allow if no origin (non-browser request), or if origin is in whitelist
 
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("CORS not allowed fro this origin:" + origin));
+      // do NOT call callback with an error -  just reject  by returning false
+      callback(null, false);
+      // callback(new Error("CORS not allowed fro this origin:" + origin));
     }
   },
   credentials: true,

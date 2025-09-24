@@ -27,7 +27,7 @@ const allowedOrigins = [
   "http://localhost:3000", // React dev server
   "http://localhost:5173", // Vite dev server
   "http://localhost:8080", // Vite preview
-  "http://sage-sync.vercel.app", // Site preview
+  "https://sage-sync.vercel.app", // Site preview
   process.env.FRONTEND_URL, // Production frontend URL
 ].filter(Boolean);
 

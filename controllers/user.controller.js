@@ -35,7 +35,10 @@ export const registerUserCtrl = AsyncHandler(async (req, res) => {
   // We create a temporary user object to generate the token, but don't save it yet.
   const tempUser = new User({ email });
   const verificationToken = tempUser.createVerificationToken();
-  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+
+  console.log("RAW VERIFICATION TOKEN (send this in URL:", verificationToken);
+
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${encodeURIComponent(verificationToken)}`;
 
   // 3. Create user object with hashed password but DO NOT SAVE YET
   const user = new User({

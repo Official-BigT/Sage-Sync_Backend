@@ -38,7 +38,9 @@ export const registerUserCtrl = AsyncHandler(async (req, res) => {
 
   console.log("RAW VERIFICATION TOKEN (send this in URL:", verificationToken);
 
-  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${encodeURIComponent(verificationToken)}`;
+  const verificationUrl = `${
+    process.env.FRONTEND_URL
+  }/verify-email?token=${encodeURIComponent(verificationToken)}`;
 
   // 3. Create user object with hashed password but DO NOT SAVE YET
   const user = new User({
@@ -140,14 +142,14 @@ export const loginUserCtrl = AsyncHandler(async (req, res) => {
   // 4. Set httpOnly cookies
   res.cookie("jwt", accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "Lax",
+    secure: process.env.NODE_ENV === "production", //must be true on render
+    sameSite: "none", // allow cookies across domains (Vercel -> Render )
     maxAge: 1 * 60 * 60 * 1000, //1 hour
   });
   res.cookie("refreshToken", refreshTokenPlain, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "Lax",
+    sameSite: "none",
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
 

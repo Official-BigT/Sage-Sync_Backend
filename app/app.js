@@ -5,12 +5,13 @@ import cors from "cors";
 import { globalErrHandler, notFound } from "../middlewares/globalErrHandler.js";
 import dbConnect from "../config/dbConnect.js";
 import authRoutes from "../routes/auth.routes.js";
+import cookieParser from "cookie-parser";
 
 // * Database Connection.
 dbConnect();
 
 const app = express();
-// CORS configuration (CRITICAL FOR FRONTEND)
+
 // Log incoming requests (very useful for render logs)
 app.use((req, res, next) => {
   console.log(
@@ -23,6 +24,12 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+// Parse cookies BEFORE hitting any routes
+app.use(cookieParser());
+
+// CORS configuration (CRITICAL FOR FRONTEND)
+
 const allowedOrigins = [
   "http://localhost:3000", // React dev server
   "http://localhost:5173", // Vite dev server

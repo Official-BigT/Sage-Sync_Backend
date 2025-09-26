@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import { globalErrHandler, notFound } from "../middlewares/globalErrHandler.js";
 import dbConnect from "../config/dbConnect.js";
 import authRoutes from "../routes/auth.routes.js";
-import cookieParser from "cookie-parser";
 
 // * Database Connection.
 dbConnect();

@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUserCtrl } from "../controllers/user.controller.js";
+import { getMe, registerUserCtrl } from "../controllers/user.controller.js";
 import { loginUserCtrl } from "../controllers/user.controller.js";
 import { verifyEmailCtrl } from "../controllers/verifyEmailCtrl.js";
 import { protect } from "../middlewares/protect.js";
@@ -24,15 +24,13 @@ router.post("/login", loginUserCtrl);
 
 router.post("/refresh", refreshTokenCtrl);
 
-router.get("/me", protect, (req, res) => {
-  res.json({ user: req.user });
-});
+router.get("/me", protect, getMe);
 
-router.post("/logout",async (req, res) => {
+router.post("/logout", async (req, res) => {
   const token = req.cookies?.refreshToken || req.body.refreshToken;
   if (token) {
     const hashed = crypto.createHash("sha256").update(token).digest("hex");
-    await RefreshToken.deleteOne({token: hashed})
+    await RefreshToken.deleteOne({ token: hashed });
   }
   res.clearCookie("jwt");
   res.clearCookie("refreshToken");

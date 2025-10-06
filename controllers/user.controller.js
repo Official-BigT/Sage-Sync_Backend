@@ -162,3 +162,36 @@ export const loginUserCtrl = AsyncHandler(async (req, res) => {
     },
   });
 });
+
+
+// ===============================
+// GET CURRENT USER (/me)
+// ===============================
+// @desc    Get logged-in user's info
+// @route   GET /api/v1/auth/me
+// @access  Private
+export const getMe = AsyncHandler(async (req, res) => {
+  // req.user is set by protect middleware
+  if (!req.user) {
+    return res.status(401).json({ message: "Not authorized" });
+  }
+
+  res.status(200).json({
+    status: "success ✅",
+    data: {
+      id: req.user._id,
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+      email: req.user.email,
+      phone: req.user.phone,
+      businessName: req.user.businessName,
+      businessType: req.user.businessType,
+      plan: req.user.plan,
+      currentEarnings: req.user.currentEarnings,
+      totalInvoices: req.user.totalInvoices,
+      paidInvoices: req.user.paidInvoices,
+      monthlyGoal: req.user.monthlyGoal,
+      avatar: req.user.avatar,
+    },
+  });
+});

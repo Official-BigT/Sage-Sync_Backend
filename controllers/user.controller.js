@@ -171,7 +171,14 @@ export const loginUserCtrl = AsyncHandler(async (req, res) => {
 // @route   GET /api/v1/auth/me
 // @access  Private
 export const getMe = AsyncHandler(async (req, res) => {
-  // req.user is set by protect middleware
+  // req.user is set by protect middleware, ensures middleware attached user
+  if (!req.user) {
+    return res.status(401).json({ message: "Not authorized" });
+  }
+
+   // Prevent caching
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+
   if (!req.user) {
     return res.status(401).json({ message: "Not authorized" });
   }

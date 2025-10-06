@@ -4,13 +4,12 @@ import RefreshToken from "../models/refreshToken.model.js";
 import { generateAccessToken, createRefreshToken } from "../utils/jwt.js";
 
 export const refreshTokenCtrl = AsyncHandler(async (req, res) => {
+  // console.log("Incoming cookies (refresh):", req.cookies);
 
-  console.log("Incoming cookies (refresh):", req.cookies);
-
-  const rawToken = req.cookies?.refreshToken;
+  const rawToken = req.body.refreshToken;
 
   if (!rawToken) {
-    return res.status(401).json({ message: "No refresh token in cookies" });
+    return res.status(401).json({ message: "No refresh token" });
   }
 
   const hashed = crypto.createHash("sha256").update(rawToken).digest("hex");
@@ -32,23 +31,28 @@ export const refreshTokenCtrl = AsyncHandler(async (req, res) => {
   const newRefreshToken = await createRefreshToken(stored.user);
   const accessToken = generateAccessToken(stored.user);
 
-  // Debug what we're setting 
-  console.log("Setting new cookies (refresh + jwt)");
-  
-  //   Set new cookies
-  res.cookie("refreshToken", newRefreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  });
-  res.cookie("jwt", accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 1 * 60 * 60 * 1000, // 1 hour
-  });
+  // Debug what we're setting
+  // console.log("Setting new cookies (refresh + jwt)");
 
-  res.json({ status:"success ✅", accessToken })
+  //   Set new cookies (optional future for same-domain use)
+  // res.cookie("refreshToken", newRefreshToken, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production",
+  //   sameSite: "none",
+  //   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  // });
+  // res.cookie("jwt", accessToken, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production",
+  //   sameSite: "none",
+  //   maxAge: 1 * 60 * 60 * 1000, // 1 hour
+  // });
+
+  res.json({
+    status: "success ✅",
+    tokens: {
+      accessToken,
+      refreshToken: newRefreshToken,
+    },
+  });
 });
-

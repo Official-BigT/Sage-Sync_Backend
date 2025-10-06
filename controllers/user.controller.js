@@ -5,6 +5,7 @@ import User from "../models/user.model.js";
 import emailManager from "../utils/emailManager.js";
 import { hashPassword } from "../utils/helpers.js";
 import { createRefreshToken, generateAccessToken } from "../utils/jwt.js";
+import { refreshTokenCtrl } from "./authRefresh.controller.js";
 
 // ===============================
 // REGISTER USER
@@ -107,8 +108,8 @@ export const registerUserCtrl = AsyncHandler(async (req, res) => {
 // ===============================
 // LOGIN USER
 // ===============================
-// @desc    Register a new user
-// @route   POST /api/v1/auth/register
+// @desc    Login a user
+// @route   POST /api/v1/auth/login
 // @access  Public
 export const loginUserCtrl = AsyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -121,39 +122,32 @@ export const loginUserCtrl = AsyncHandler(async (req, res) => {
     });
   }
 
-  // 2. Check password
-  const isMatch = await user.correctPassword(password);
-  if (!isMatch) {
-    return res.status(401).json({
-      status: "error ❌",
-      message: "Invalid email or password",
-    });
-  }
-
-  // 3. Check if email is verified
+  // 2. Check if email is verified
   if (!user.emailVerified) {
     return res.status(403).json({
       message: "Please verify your email first before logging in.",
     });
   }
 
+  //3. Generate tokens
   const accessToken = generateAccessToken(user._id);
   const refreshTokenPlain = await createRefreshToken(user._id);
-  // 4. Set httpOnly cookies
-  res.cookie("jwt", accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", //must be true on render
-    sameSite: "none", // allow cookies across domains (Vercel -> Render )
-    maxAge: 1 * 60 * 60 * 1000, //1 hour
-  });
-  res.cookie("refreshToken", refreshTokenPlain, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  });
 
-  // 5. Respond with JWT
+  // 4. Set as cookies (for same-domain httpOnly cookies future use)
+  // res.cookie("jwt", accessToken, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production", //must be true on render
+  //   sameSite: "none", // allow cookies across domains (Vercel -> Render )
+  //   maxAge: 1 * 60 * 60 * 1000, //1 hour
+  // });
+  // res.cookie("refreshToken", refreshTokenPlain, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production",
+  //   sameSite: "none",
+  //   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  // });
+
+  // 5. Respond with JWT and also send tokens in body (for hybrid model)
   res.json({
     status: "success ✅",
     data: {
@@ -161,6 +155,10 @@ export const loginUserCtrl = AsyncHandler(async (req, res) => {
       email: user.email,
       firstName: user.firstName,
       businessName: user.businessName,
+    },
+    tokens: {
+      accessToken,
+      refreshToken: refreshTokenPlain,
     },
   });
 });

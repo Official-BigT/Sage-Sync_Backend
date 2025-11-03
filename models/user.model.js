@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { type } from "os";
 
 const userSchema = new mongoose.Schema(
   {
@@ -27,9 +28,35 @@ const userSchema = new mongoose.Schema(
       unique: true,
     },
 
+    // required: function () {
+    //     return this.authProvider === "local"
+    //   }, // This allows OAuth users to skip these fields at creation but lets you enforce them later during the profile completion process
+
+    // Third-party Auth fields
+    googleId: { type: String },
+    appleId: { type: String },
+
+    authProvider: {
+      type: String,
+      enum: ["local", "google", "apple"],
+      default: "local",
+    },
+
+    avatar: {
+      type: String, //store Google or Apple profile picture
+    },
+
+    isProfileComplete: {
+      type: Boolean,
+      default: false, // false until finishes setup after OAuth sign-in
+    },
+
     phone: {
       type: String,
-      required: [true, "Phone number is required"],
+      // required: [true, "Phone number is required"],
+      required: function () {
+        return this.authProvider === "local";
+      },
       trim: true,
       match: [
         /^(?:\+234|0)[789]\d{9}$/,
@@ -40,14 +67,20 @@ const userSchema = new mongoose.Schema(
     //   Business Information
     businessName: {
       type: String,
-      required: [true, "Business name is required"],
+      // required: [true, "Business name is required"],
+      required: function () {
+        return this.authProvider === "local";
+      },
       trim: true,
       maxlength: [155, "Business name cannot exceed 255 characters"],
     },
 
     businessType: {
       type: String,
-      required: [true, "Business type is required"],
+      // required: [true, "Business type is required"],
+      required: function () {
+        return this.authProvider === "local";
+      },
       enum: [
         "Freelancer",
         "Consultant",
@@ -63,7 +96,10 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true,
+      // required: true, //for manual auth
+      required: function () {
+        return this.authProvider === "local";
+      }, //password is not required when Google/Apple creates a user
       trim: true,
       // lowercase: true,
       // unique: true,
@@ -72,7 +108,10 @@ const userSchema = new mongoose.Schema(
     //   User x Service  Agreements
     agreeToTerms: {
       type: Boolean,
-      required: [true, `You must agree to the terms of service`],
+      // required: [true, `You must agree to the terms of service`],
+      required: function () {
+        return this.authProvider === "local";
+      },
     },
 
     subscribeToNewsletter: {
@@ -104,7 +143,7 @@ const userSchema = new mongoose.Schema(
 // Password encryption middleware
 userSchema.pre("save", async function (next) {
   // Check if the password field was changed
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password") || !this.password) return next();
 
   this.password = await bcrypt.hash(this.password, 15);
   next();
@@ -160,7 +199,6 @@ userSchema.methods.createPasswordResetToken = function () {
 
 // Instance method to create email verification token
 userSchema.methods.createVerificationToken = function () {
-
   const verificationToken = crypto.randomBytes(32).toString("hex");
 
   this.verificationToken = crypto

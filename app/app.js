@@ -31,8 +31,8 @@ app.use(cookieParser());
 // CORS configuration (CRITICAL FOR FRONTEND)
 
 const allowedOrigins = [
-  "http://localhost:3000", // React dev server
-  "http://localhost:5173", // Vite dev server
+  // "http://localhost:3000", // React dev server
+  // "http://localhost:5173", // Vite dev server
   "http://localhost:8080", // Vite preview
   "https://sage-sync.vercel.app", // Site preview
   process.env.FRONTEND_URL, // Production frontend URL

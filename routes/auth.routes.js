@@ -4,6 +4,7 @@ import { loginUserCtrl } from "../controllers/user.controller.js";
 import { verifyEmailCtrl } from "../controllers/verifyEmailCtrl.js";
 import { protect } from "../middlewares/protect.js";
 import { refreshTokenCtrl } from "../controllers/authRefresh.controller.js";
+import { googleAuth } from "../controllers/oauth.controller.js";
 
 const router = express.Router();
 
@@ -16,6 +17,8 @@ router.post("/register", registerUserCtrl);
 // @desc    Verify user email
 // @access  Public
 router.get("/verify-email", verifyEmailCtrl);
+
+router.post("/google", googleAuth)
 
 // @route   POST /api/v1/auth/login
 // @desc    Register a new user

@@ -4,7 +4,7 @@ import { loginUserCtrl } from "../controllers/user.controller.js";
 import { verifyEmailCtrl } from "../controllers/verifyEmailCtrl.js";
 import { protect } from "../middlewares/protect.js";
 import { refreshTokenCtrl } from "../controllers/authRefresh.controller.js";
-import { googleAuth } from "../controllers/oauth.controller.js";
+import { completeGoogleProfile, googleAuth } from "../controllers/oauth.controller.js";
 
 const router = express.Router();
 
@@ -18,7 +18,13 @@ router.post("/register", registerUserCtrl);
 // @access  Public
 router.get("/verify-email", verifyEmailCtrl);
 
+// @desc    Sign in or register with Google
+// @route   POST /api//v1/auth/google
 router.post("/google", googleAuth)
+
+// @desc Complete profile for Google-registered users
+// @route PUT /api/v1/auth/complete-profile/:id
+router.post("/complete-profile/:id", completeGoogleProfile)
 
 // @route   POST /api/v1/auth/login
 // @desc    Register a new user

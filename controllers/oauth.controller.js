@@ -19,7 +19,7 @@ import { generateTokens } from "../utils/jwt.js";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // @desc    Sign in or register with Google
-// @route   POST /api/auth/google
+// @route   POST /api//v1/auth/google
 
 export const googleAuth = async (req, res) => {
   try {
@@ -71,5 +71,44 @@ export const googleAuth = async (req, res) => {
   } catch (err) {
     console.error("Google Auth error:", err.message);
     res.status(500).json({ message: "Google authentication failed" });
+  }
+};
+
+// @desc Complete profile for Google-registered users
+// @route PUT /api/v1/auth/complete-profile/:id
+
+export const completeGoogleProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const {
+      phone,
+      businessName,
+      businessType,
+      agreeToTerms,
+      subscribeToNewsletter,
+    } = req.body;
+
+    const user = await User.findOne(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Update fields for profile completion
+    user.phone = phone || user.phone;
+    user.businessName = businessName || user.businessName;
+    user.businessType = businessType || user.businessType;
+    user.agreeToTerms = agreeToTerms;
+    user.subscribeToNewsletter = subscribeToNewsletter;
+    user.isActive = true;
+    user.isProfileComplete = true;
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Profile completed successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Profile completion error:", error.message);
+    res.status(500).json({ message: "Failed to complete profile." });
   }
 };

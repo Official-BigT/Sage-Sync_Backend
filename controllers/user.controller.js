@@ -202,3 +202,34 @@ export const getMe = AsyncHandler(async (req, res) => {
     },
   });
 });
+
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { firstName,
+    lastName,
+    phone,
+    businessName,
+    businessType,
+     } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { firstName, lastName, phone, businessName, businessType },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update profile",
+    });
+  }
+};

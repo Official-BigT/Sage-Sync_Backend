@@ -79,7 +79,14 @@ export const googleAuth = async (req, res) => {
 
 export const completeGoogleProfile = async (req, res) => {
   try {
-    const userId = req.params.id;
+    // use userID token, not params
+    // const userId = req.params.id;
+
+    const userId = req.user?._id || req.user?.id;
+
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized access" });
+    }
     const {
       phone,
       businessName,
@@ -88,11 +95,12 @@ export const completeGoogleProfile = async (req, res) => {
       subscribeToNewsletter,
     } = req.body;
 
-    const user = await User.findOne(userId);
+    const user = await User.fineByID(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    // Update fields for profile completion
+
+    // // Update fields for profile completion
     user.phone = phone || user.phone;
     user.businessName = businessName || user.businessName;
     user.businessType = businessType || user.businessType;
@@ -104,6 +112,7 @@ export const completeGoogleProfile = async (req, res) => {
     await user.save();
 
     return res.status(200).json({
+      success: true,
       message: "Profile completed successfully",
       user,
     });

@@ -41,13 +41,13 @@ export const protect = AsyncHandler(async (req, res, next) => {
     if (
       user.authProvider === "local" &&
       user.passwordChangedAt &&
-      user.passwordChangedAfter(decoded.iat)
+      user.changedPasswordAfter(decoded.iat)
     ) {
       return res
         .status(401)
         .json({ message: "Password recently changed. Please log in again." });
     }
-    
+
     req.user = user;
     next();
   } catch (err) {

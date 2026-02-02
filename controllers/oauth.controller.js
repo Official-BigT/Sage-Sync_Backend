@@ -41,7 +41,6 @@ export const googleAuth = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
-      // Create partial record for new Google user
       user = await User.create({
         googleId: sub,
         email,
@@ -51,22 +50,40 @@ export const googleAuth = async (req, res) => {
         emailVerified: email_verified,
         authProvider: "google",
         isProfileComplete: false,
+        isActive: true,
       });
+    } else {
+      // Link Google to existing account if not already linked
+      if (!user.googleId) {
+        user.googleId = sub;
+        user.authProvider = "google";
+        if (picture) user.avatar = picture;
+        user.emailVerified = user.emailVerified || email_verified;
+        await user.save();
+      }
     }
-    // Generate your own tokens
+
     const { accessToken, refreshToken } = await generateTokens(
       user._id,
       "google"
     );
 
-    // Send response
+    // Same response shape as login so frontend can handle both the same way
     res.status(200).json({
+      status: "success ✅",
+      data: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        businessName: user.businessName,
+        avatar: user.avatar,
+        isProfileComplete: user.isProfileComplete,
+      },
+      tokens: { accessToken, refreshToken },
       message: user.isProfileComplete
         ? "Login successful"
-        : "Account created, Please complete your profile",
-      user,
-      accessToken,
-      refreshToken,
+        : "Account created. Please complete your profile.",
     });
   } catch (err) {
     console.error("Google Auth error:", err.message);
@@ -83,10 +100,15 @@ export const completeGoogleProfile = async (req, res) => {
     // const userId = req.params.id;
 
     const userId = req.user?._id || req.user?.id;
-
-    if (!user) {
+    if (!userId) {
       return res.status(401).json({ message: "Unauthorized access" });
     }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const {
       phone,
       businessName,
@@ -94,11 +116,6 @@ export const completeGoogleProfile = async (req, res) => {
       agreeToTerms,
       subscribeToNewsletter,
     } = req.body;
-
-    const user = await User.fineByID(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
 
     // // Update fields for profile completion
     user.phone = phone || user.phone;
@@ -112,9 +129,17 @@ export const completeGoogleProfile = async (req, res) => {
     await user.save();
 
     return res.status(200).json({
-      success: true,
+      status: "success ✅",
       message: "Profile completed successfully",
-      user,
+      data: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        businessName: user.businessName,
+        businessType: user.businessType,
+        isProfileComplete: user.isProfileComplete,
+      },
     });
   } catch (error) {
     console.error("Profile completion error:", error.message);

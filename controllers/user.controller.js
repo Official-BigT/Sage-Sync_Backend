@@ -163,7 +163,6 @@ export const loginUserCtrl = AsyncHandler(async (req, res) => {
   });
 });
 
-
 // ===============================
 // GET CURRENT USER (/me)
 // ===============================
@@ -171,17 +170,12 @@ export const loginUserCtrl = AsyncHandler(async (req, res) => {
 // @route   GET /api/v1/auth/me
 // @access  Private
 export const getMe = AsyncHandler(async (req, res) => {
-  // req.user is set by protect middleware, ensures middleware attached user
+  // req.user is set by protect middleware
   if (!req.user) {
     return res.status(401).json({ message: "Not authorized" });
   }
 
-   // Prevent caching
   res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
-
-  if (!req.user) {
-    return res.status(401).json({ message: "Not authorized" });
-  }
 
   res.status(200).json({
     status: "success ✅",
@@ -199,20 +193,18 @@ export const getMe = AsyncHandler(async (req, res) => {
       paidInvoices: req.user.paidInvoices,
       monthlyGoal: req.user.monthlyGoal,
       avatar: req.user.avatar,
+      isProfileComplete: req.user.isProfileComplete,
+      authProvider: req.user.authProvider,
+      isActive: req.user.isActive,
+      emailVerified: req.user.emailVerified,
     },
   });
 });
 
-
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { firstName,
-    lastName,
-    phone,
-    businessName,
-    businessType,
-     } = req.body;
+    const { firstName, lastName, phone, businessName, businessType } = req.body;
 
     const user = await User.findByIdAndUpdate(
       userId,

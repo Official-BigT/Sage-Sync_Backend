@@ -1,10 +1,19 @@
 import express from "express";
-import { getMe, registerUserCtrl, updateProfile } from "../controllers/user.controller.js";
+import crypto from "crypto";
+import {
+  getMe,
+  registerUserCtrl,
+  updateProfile,
+} from "../controllers/user.controller.js";
 import { loginUserCtrl } from "../controllers/user.controller.js";
 import { verifyEmailCtrl } from "../controllers/verifyEmailCtrl.js";
 import { protect } from "../middlewares/protect.js";
 import { refreshTokenCtrl } from "../controllers/authRefresh.controller.js";
-import { completeGoogleProfile, googleAuth } from "../controllers/oauth.controller.js";
+import {
+  completeGoogleProfile,
+  googleAuth,
+} from "../controllers/oauth.controller.js";
+import RefreshToken from "../models/refreshToken.model.js";
 
 const router = express.Router();
 
@@ -20,14 +29,13 @@ router.get("/verify-email", verifyEmailCtrl);
 
 // @desc    Sign in or register with Google
 // @route   POST /api//v1/auth/google
-router.post("/google", googleAuth)
+router.post("/google", googleAuth);
 
 // @desc Complete profile for Google-registered users
 // @route PUT /api/v1/auth/complete-profile/:id
 // router.post("/complete-profile/:id", completeGoogleProfile)
 
-router.patch("/complete-profile", protect, completeGoogleProfile
-);
+router.patch("/complete-profile", protect, completeGoogleProfile);
 
 // @route   POST /api/v1/auth/login
 // @desc    Register a new user
@@ -37,7 +45,6 @@ router.post("/login", loginUserCtrl);
 router.post("/refresh", refreshTokenCtrl);
 
 router.patch("/update-profile", protect, updateProfile);
-
 
 router.get("/me", protect, getMe);
 
